@@ -28,16 +28,16 @@ func run() {
 	)
 	var eat bool
 	var snakeEnd int
-	lastPressed := 'r'
-	speed := scale //20.0
+	lastPressed := 'r' // default going right
+	speed := scale     //20.0
 	player := snake{}
 	player.Init(4)
 	fmt.Println(player)
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Pixel Rocks!",
-		Bounds: pixel.R(0, 0, 600, 600),
-		VSync:  true,
+		Bounds: pixel.R(0, 0, width, height),
+		//VSync:  true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
@@ -59,7 +59,22 @@ func run() {
 	imdFood.Rectangle(0)
 	imdFood.Draw(win)
 
+	var (
+		frames = 0
+		second = time.Tick(time.Second)
+	)
+	startTime := time.Now()
+	exeTime := 1 * time.Second // just to start the loop
 	for !win.Closed() {
+		if exeTime < 50*time.Millisecond {
+			exeTime = time.Since(startTime)
+			continue
+		}
+		startTime = time.Now()
+		// if frames > 40 {
+		// 	time.Sleep(1 * time.Microsecond)
+		// 	continue
+		// }
 		snakeEnd = len(player.Snake)
 		win.Clear(colornames.Darkgrey)
 
@@ -78,9 +93,17 @@ func run() {
 		imdFood.Push(pixel.V(FMinX, FMinY))
 		imdFood.Rectangle(0)
 		imdFood.Draw(win)
-		win.Update()
+		//win.Update()
 		player.Imd.Clear()
 		imdFood.Clear()
+
+		frames++
+		select {
+		case <-second:
+			win.SetTitle(fmt.Sprintf("%s | FPS: %d", cfg.Title, frames))
+			frames = 0
+		default:
+		}
 
 		// only turn the snake head
 		if win.Pressed(pixelgl.KeyLeft) && lastPressed != 'r' {
@@ -146,9 +169,11 @@ func run() {
 			player.Imd.Push(pixel.V(p.MinX, p.MinY))
 			player.Imd.Rectangle(0)
 			player.Imd.Draw(win)
-			win.Update()
+			//	win.Update()
 		}
-		time.Sleep(75 * time.Millisecond)
+		win.Update()
+		//	time.Sleep(40 * time.Millisecond)
+		exeTime = time.Since(startTime)
 	}
 	defer func() { fmt.Println(lastPressed) }()
 }
