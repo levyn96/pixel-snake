@@ -66,15 +66,12 @@ func run() {
 	startTime := time.Now()
 	exeTime := 1 * time.Second // just to start the loop
 	for !win.Closed() {
+		// check if the fps is over 20
 		if exeTime < 50*time.Millisecond {
 			exeTime = time.Since(startTime)
 			continue
 		}
 		startTime = time.Now()
-		// if frames > 40 {
-		// 	time.Sleep(1 * time.Microsecond)
-		// 	continue
-		// }
 		snakeEnd = len(player.Snake)
 		win.Clear(colornames.Darkgrey)
 
@@ -93,7 +90,6 @@ func run() {
 		imdFood.Push(pixel.V(FMinX, FMinY))
 		imdFood.Rectangle(0)
 		imdFood.Draw(win)
-		//win.Update()
 		player.Imd.Clear()
 		imdFood.Clear()
 
@@ -169,10 +165,8 @@ func run() {
 			player.Imd.Push(pixel.V(p.MinX, p.MinY))
 			player.Imd.Rectangle(0)
 			player.Imd.Draw(win)
-			//	win.Update()
 		}
 		win.Update()
-		//	time.Sleep(40 * time.Millisecond)
 		exeTime = time.Since(startTime)
 	}
 	defer func() { fmt.Println(lastPressed) }()
