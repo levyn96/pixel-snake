@@ -50,7 +50,7 @@ func run() {
 
 	// init food and draw it
 	imdFood := imdraw.New(nil)
-	imdFood.Color = colornames.Green
+	imdFood.Color = colornames.Crimson
 	imdFood.EndShape = imdraw.SharpEndShape
 	FMaxX, FMaxY, FMinX, FMinY = pickLocation()
 	fmt.Println(FMaxX, FMaxY, FMinX, FMinY)
@@ -72,13 +72,17 @@ func run() {
 			continue
 		}
 		startTime = time.Now()
-		snakeEnd = len(player.Snake)
 		win.Clear(colornames.Darkgrey)
 
 		eat = player.EatFood(FMaxX, FMaxY, FMinX, FMinY)
 
 		if eat {
 			FMaxX, FMaxY, FMinX, FMinY = pickLocation()
+		}
+		snakeEnd = len(player.Snake)
+
+		if win.JustPressed(pixelgl.KeyTab) {
+			player.Grow()
 		}
 
 		//rotate the positions
@@ -144,29 +148,42 @@ func run() {
 		}
 		// check if the player reached the walls
 		// reached the top
-		if player.Snake[snakeEnd-1].MaxY >= height+20 {
+		if player.Snake[snakeEnd-1].MaxY >= height+scale { //20 {
 			player.Snake[snakeEnd-1].MaxY = scale //20.0
 			player.Snake[snakeEnd-1].MinY = 0.0
 			// reached the right bounder
-		} else if player.Snake[snakeEnd-1].MinX >= width+20 {
+		} else if player.Snake[snakeEnd-1].MinX >= width+scale { //20 {
 			player.Snake[snakeEnd-1].MinX = scale //20.0
 			player.Snake[snakeEnd-1].MaxX = 0.0
 			// reached the left bounder
-		} else if player.Snake[snakeEnd-1].MaxX <= -20.0 {
+		} else if player.Snake[snakeEnd-1].MaxX <= -scale { //-20.0 {
 			player.Snake[snakeEnd-1].MaxX = width - scale //580.0
 			player.Snake[snakeEnd-1].MinX = width         //600.0
 			// reached the buttom
-		} else if player.Snake[snakeEnd-1].MinY <= -20.0 {
+		} else if player.Snake[snakeEnd-1].MinY <= -scale { //-20.0 {
 			player.Snake[snakeEnd-1].MinY = height - scale //580.0
 			player.Snake[snakeEnd-1].MaxY = height         //600.0
 		}
 		for _, p := range player.Snake {
 			player.Imd.Push(pixel.V(p.MaxX, p.MaxY))
 			player.Imd.Push(pixel.V(p.MinX, p.MinY))
-			player.Imd.Rectangle(0)
+			player.Imd.Rectangle(10.0)
 			player.Imd.Draw(win)
 		}
 		win.Update()
+		// reset buttom
+		for i := 0; i < len(player.Snake)-2; i++ {
+			if player.Interact(player.Snake[len(player.Snake)-1], player.Snake[i]) {
+				player.Reset()
+				lastPressed = 'r'
+				continue
+			}
+		}
+		if win.JustReleased(pixelgl.KeySpace) {
+			player.Reset()
+			lastPressed = 'r'
+			continue
+		}
 		exeTime = time.Since(startTime)
 	}
 	defer func() { fmt.Println(lastPressed) }()

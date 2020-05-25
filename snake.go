@@ -21,12 +21,12 @@ func (s *snake) Init(n int) {
 	start := []float64{0, 600, 20, 580}
 	var positions []position
 	imd := imdraw.New(nil)
-	imd.Color = colornames.Blue
-	imd.EndShape = imdraw.SharpEndShape
+	imd.Color = colornames.Greenyellow
+	imd.EndShape = imdraw.RoundEndShape
 	s.Imd = imd
 	for i := 0; i < n; i++ {
 		for p := 0; p < n; p++ {
-			x = float64(p) * 25
+			x = float64(p) * scale
 			positions = append(positions, position{x + start[0], start[1], x + start[2], start[3]})
 		}
 		s.Snake = append(s.Snake, positions[i])
@@ -37,7 +37,7 @@ func (s *snake) Set() {
 	for _, t := range s.Snake {
 		s.Imd.Push(pixel.V(t.MaxX, t.MaxY))
 		s.Imd.Push(pixel.V(t.MinX, t.MinY))
-		s.Imd.Rectangle(0)
+		s.Imd.Rectangle(10.0)
 	}
 }
 
@@ -63,4 +63,22 @@ func (s *snake) Grow() {
 		array1 = append(array1, p)
 	}
 	s.Snake = array1
+}
+
+func (s *snake) Reset() {
+	s.Imd = nil
+	s.Snake = nil
+	s.Init(4)
+	s.Set()
+}
+
+func (s *snake) Interact(r1, r2 position) bool {
+	if (r1.MaxX+5.0 >= r2.MaxX && r1.MaxX-5.0 <= r2.MaxX) &&
+		(r1.MaxY+5.0 >= r2.MaxY && r1.MaxY-5.0 <= r2.MaxY) {
+		return true
+	} else if (r1.MinX+5.0 >= r2.MinX && r1.MinX-5.0 <= r2.MinX) &&
+		(r1.MinY+5.0 >= r2.MinY && r1.MinY-5.0 <= r2.MinY) {
+		return true
+	}
+	return false
 }
