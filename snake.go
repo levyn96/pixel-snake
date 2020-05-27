@@ -1,56 +1,52 @@
 package main
 
 import (
+	"image/color"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"golang.org/x/image/colornames"
 )
 
 type snake struct {
-	Snake []position
-	Imd   *imdraw.IMDraw
+	Snake  []pixel.Rect //position
+	Imd    *imdraw.IMDraw
+	Colors []color.RGBA
 }
 
-type position struct {
-	// MinX, MinY, MaxX, MaxY float64
-	MaxX, MaxY, MinX, MinY float64
-}
+// type position struct {
+// 	// MinX, MinY, MaxX, MaxY float64
+// 	// MaxX, MaxY, MinX, MinY float64
+// 	Rect pixel.Rect
+// }
 
 func (s *snake) Init(n int) {
+	Colors := []color.RGBA{colornames.Brown, colornames.Blue, colornames.Crimson, colornames.Green}
+	s.Colors = Colors
 	var x float64
 	start := []float64{0, 600, 20, 580}
-	var positions []position
 	imd := imdraw.New(nil)
 	imd.Color = colornames.Greenyellow
 	imd.EndShape = imdraw.RoundEndShape
 	s.Imd = imd
 	for i := 0; i < n; i++ {
-		for p := 0; p < n; p++ {
-			x = float64(p) * scale
-			positions = append(positions, position{x + start[0], start[1], x + start[2], start[3]})
-		}
-		s.Snake = append(s.Snake, positions[i])
+		x = float64(i) * scale
+		s.Snake = append(s.Snake, pixel.R(x+start[2], start[3], x+start[0], start[1]))
 	}
 }
 
 func (s *snake) Set() {
-	for _, t := range s.Snake {
-		s.Imd.Push(pixel.V(t.MaxX, t.MaxY))
-		s.Imd.Push(pixel.V(t.MinX, t.MinY))
+	for i, r := range s.Snake {
+		// pick the color with respect to the index (0-brown,1-blue,2-crimson,3-green, 4 is brown again and so on)
+		s.Imd.Color = s.Colors[i-(i/len(s.Colors)*len(s.Colors))]
+		s.Imd.Push(r.Min, r.Max)
 		s.Imd.Rectangle(10.0)
 	}
 }
 
-func (s *snake) EatFood(x1, y1, x2, y2 float64) bool {
-
-	// if s.Snake[len(s.Snake)-1].MaxX == x1 && s.Snake[len(s.Snake)-1].MaxY == y1 ||
-	// 	s.Snake[len(s.Snake)-1].MinX == x2 && s.Snake[len(s.Snake)-1].MinY == y2 {
-	if (s.Snake[len(s.Snake)-1].MaxX+5.0 >= x1 && s.Snake[len(s.Snake)-1].MaxX-5.0 <= x1) &&
-		(s.Snake[len(s.Snake)-1].MaxY+5.0 >= y1 && s.Snake[len(s.Snake)-1].MaxY-5.0 <= y1) {
-		s.Grow()
-		return true
-	} else if (s.Snake[len(s.Snake)-1].MinX+5.0 >= x2 && s.Snake[len(s.Snake)-1].MinX-5.0 <= x2) &&
-		(s.Snake[len(s.Snake)-1].MinY+5.0 >= y2 && s.Snake[len(s.Snake)-1].MinY-5.0 <= y2) {
+func (s *snake) EatFood(food pixel.Rect) bool {
+	diff := s.Snake[len(s.Snake)-1].Center().Sub(food.Center())
+	if (diff.X < 5 && diff.X > -5) && (diff.Y < 5 && diff.Y > -5) {
 		s.Grow()
 		return true
 	}
@@ -58,7 +54,7 @@ func (s *snake) EatFood(x1, y1, x2, y2 float64) bool {
 }
 
 func (s *snake) Grow() {
-	array1 := []position{s.Snake[0]}
+	array1 := []pixel.Rect{s.Snake[0]}
 	for _, p := range s.Snake {
 		array1 = append(array1, p)
 	}
@@ -72,12 +68,9 @@ func (s *snake) Reset() {
 	s.Set()
 }
 
-func (s *snake) Interact(r1, r2 position) bool {
-	if (r1.MaxX+5.0 >= r2.MaxX && r1.MaxX-5.0 <= r2.MaxX) &&
-		(r1.MaxY+5.0 >= r2.MaxY && r1.MaxY-5.0 <= r2.MaxY) {
-		return true
-	} else if (r1.MinX+5.0 >= r2.MinX && r1.MinX-5.0 <= r2.MinX) &&
-		(r1.MinY+5.0 >= r2.MinY && r1.MinY-5.0 <= r2.MinY) {
+func (s *snake) Interact(r1, r2 pixel.Rect) bool {
+	diff := r1.Center().Sub(r2.Center())
+	if (diff.X < 5 && diff.X > -5) && (diff.Y < 5 && diff.Y > -5) {
 		return true
 	}
 	return false
