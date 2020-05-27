@@ -49,8 +49,7 @@ func run() {
 	imdFood := imdraw.New(nil)
 	imdFood.Color = colornames.Crimson
 	imdFood.EndShape = imdraw.SharpEndShape
-	//food := pickLocation()
-	food := player.Snake[len(player.Snake)-1].Moved(pixel.V(scale*2, 0))
+	food := pickLocation()
 	imdFood.Push(food.Min, food.Max)
 	imdFood.Rectangle(0)
 	imdFood.Draw(win)
@@ -103,52 +102,27 @@ func run() {
 		if win.Pressed(pixelgl.KeyLeft) && lastPressed != 'r' {
 			lastPressed = 'l'
 			player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(-speed, 0))
-			// player.Snake[snakeEnd-1].MaxX -= speed
-			// player.Snake[snakeEnd-1].MinX -= speed
 		} else if win.Pressed(pixelgl.KeyRight) && lastPressed != 'l' {
 			lastPressed = 'r'
 			player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(speed, 0))
-			// player.Snake[snakeEnd-1].MaxX += speed
-			// player.Snake[snakeEnd-1].MinX += speed
 		} else if win.Pressed(pixelgl.KeyDown) && lastPressed != 'u' {
 			lastPressed = 'd'
 			player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(0, -speed))
-
-			// player.Snake[snakeEnd-1].MaxY -= speed
-			// player.Snake[snakeEnd-1].MinY -= speed
 		} else if win.Pressed(pixelgl.KeyUp) && lastPressed != 'd' {
 			lastPressed = 'u'
 			player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(0, speed))
-
-			// player.Snake[snakeEnd-1].MaxY += speed
-			// player.Snake[snakeEnd-1].MinY += speed
 		} else {
 			switch lastPressed {
 			case 'l':
 				player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(-speed, 0))
-
-				// player.Snake[snakeEnd-1].MaxX -= speed
-				// player.Snake[snakeEnd-1].MinX -= speed
 			case 'r':
 				player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(speed, 0))
-
-				// player.Snake[snakeEnd-1].MaxX += speed
-				// player.Snake[snakeEnd-1].MinX += speed
 			case 'd':
 				player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(0, -speed))
-
-				// player.Snake[snakeEnd-1].MaxY -= speed
-				// player.Snake[snakeEnd-1].MinY -= speed
 			case 'u':
 				player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(0, speed))
-
-				// player.Snake[snakeEnd-1].MaxY += speed
-				// player.Snake[snakeEnd-1].MinY += speed
 			default:
 				player.Snake[snakeEnd-1] = player.Snake[snakeEnd-1].Moved(pixel.V(speed, 0))
-
-				// player.Snake[snakeEnd-1].MaxX += speed
-				// player.Snake[snakeEnd-1].MinX += speed
 			}
 
 		}
@@ -179,7 +153,7 @@ func run() {
 			player.Imd.Draw(win)
 		}
 		win.Update()
-		// reset button
+
 		for i := 0; i < len(player.Snake)-2; i++ {
 			if player.Interact(player.Snake[snakeEnd-1], player.Snake[i]) {
 				player.Reset()
@@ -187,6 +161,7 @@ func run() {
 				continue
 			}
 		}
+		// reset button
 		if win.JustReleased(pixelgl.KeySpace) {
 			player.Reset()
 			lastPressed = 'r'

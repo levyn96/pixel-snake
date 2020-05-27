@@ -14,12 +14,6 @@ type snake struct {
 	Colors []color.RGBA
 }
 
-// type position struct {
-// 	// MinX, MinY, MaxX, MaxY float64
-// 	// MaxX, MaxY, MinX, MinY float64
-// 	Rect pixel.Rect
-// }
-
 func (s *snake) Init(n int) {
 	Colors := []color.RGBA{colornames.Brown, colornames.Blue, colornames.Crimson, colornames.Green}
 	s.Colors = Colors
