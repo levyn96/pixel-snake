@@ -29,7 +29,6 @@ func run() {
 	speed := scale     //20.0
 	player := snake{}
 	player.Init(4)
-	fmt.Println(player)
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Pixel Rocks!",
@@ -84,11 +83,11 @@ func run() {
 			player.Snake[i] = player.Snake[i+1]
 		}
 
+		player.Imd.Clear()
+		imdFood.Clear()
 		imdFood.Push(food.Min, food.Max)
 		imdFood.Rectangle(0)
 		imdFood.Draw(win)
-		player.Imd.Clear()
-		imdFood.Clear()
 
 		frames++
 		select {
@@ -150,8 +149,8 @@ func run() {
 			player.Imd.Color = player.Colors[i-(i/numberOfColors*numberOfColors)]
 			player.Imd.Push(r.Min, r.Max)
 			player.Imd.Rectangle(10.0)
-			player.Imd.Draw(win)
 		}
+		player.Imd.Draw(win)
 		win.Update()
 
 		for i := 0; i < len(player.Snake)-2; i++ {
@@ -169,7 +168,6 @@ func run() {
 		}
 		exeTime = time.Since(startTime)
 	}
-	defer func() { fmt.Println(lastPressed) }()
 }
 
 func main() {
